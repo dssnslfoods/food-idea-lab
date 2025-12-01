@@ -2,8 +2,7 @@ import { Hero } from "@/components/Hero";
 import { StatsOverview } from "@/components/StatsOverview";
 import { WorkflowStages } from "@/components/WorkflowStages";
 import { RequirementCard } from "@/components/RequirementCard";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { NewProjectDialog } from "@/components/NewProjectDialog";
 
 const sampleRequirements = [
   {
@@ -45,10 +44,7 @@ const Index = () => {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-3xl font-bold tracking-tight">Recent Requirements</h2>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-              <Plus className="mr-2 h-4 w-4" />
-              New Requirement
-            </Button>
+            <NewProjectDialog />
           </div>
           
           <div className="grid gap-6">

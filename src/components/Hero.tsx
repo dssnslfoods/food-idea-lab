@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { NewProjectDialog } from "./NewProjectDialog";
 
 export const Hero = () => {
   return (
@@ -19,13 +20,7 @@ export const Hero = () => {
             From concept to execution, manage every stage of food innovation.
           </p>
           <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-            <Button 
-              size="lg" 
-              className="bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-elevated"
-            >
-              Start New Project
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
+            <NewProjectDialog />
             <Button 
               size="lg" 
               variant="outline" 
