@@ -1,12 +1,65 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { Hero } from "@/components/Hero";
+import { StatsOverview } from "@/components/StatsOverview";
+import { WorkflowStages } from "@/components/WorkflowStages";
+import { RequirementCard } from "@/components/RequirementCard";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+
+const sampleRequirements = [
+  {
+    title: "Plant-Based Protein Alternative",
+    description: "Develop new plant-based protein formula with improved texture and taste profile",
+    stage: "Design",
+    priority: "high" as const,
+    assignee: "Dr. Sarah Chen",
+    dueDate: "2025-12-15",
+  },
+  {
+    title: "Sustainable Packaging Solution",
+    description: "Research biodegradable packaging materials for frozen food products",
+    stage: "Development",
+    priority: "medium" as const,
+    assignee: "Mike Johnson",
+    dueDate: "2025-12-20",
+  },
+  {
+    title: "Clean Label Preservatives",
+    description: "Identify natural preservation methods to extend shelf life",
+    stage: "Testing",
+    priority: "high" as const,
+    assignee: "Dr. Lisa Wang",
+    dueDate: "2025-12-10",
+  },
+];
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Hero />
+      
+      <main className="container mx-auto max-w-7xl space-y-12 px-6 py-12">
+        <StatsOverview />
+        
+        <WorkflowStages />
+        
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-3xl font-bold tracking-tight">Recent Requirements</h2>
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+              <Plus className="mr-2 h-4 w-4" />
+              New Requirement
+            </Button>
+          </div>
+          
+          <div className="grid gap-6">
+            {sampleRequirements.map((req, index) => (
+              <div key={index} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                <RequirementCard {...req} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
     </div>
   );
 };
