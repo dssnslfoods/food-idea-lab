@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
 import { Plus } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required").max(100),
@@ -23,7 +24,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-export const NewProjectDialog = () => {
+export const NewProjectDialog = ({ onSuccess }: { onSuccess?: () => void }) => {
   const [open, setOpen] = useState(false);
 
   const form = useForm<FormData>({
@@ -38,31 +39,55 @@ export const NewProjectDialog = () => {
     },
   });
 
-  const onSubmit = (data: FormData) => {
-    // Get existing data from localStorage
-    const existingData = localStorage.getItem("rdRequirements");
-    const requirements = existingData ? JSON.parse(existingData) : [];
-    
-    // Add new requirement with timestamp
-    const newRequirement = {
-      ...data,
-      id: Date.now(),
-      createdAt: new Date().toISOString(),
-    };
-    requirements.push(newRequirement);
-    
-    // Save to localStorage
-    localStorage.setItem("rdRequirements", JSON.stringify(requirements));
-    
-    // Export to Excel
-    const worksheet = XLSX.utils.json_to_sheet(requirements);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "R&D Requirements");
-    XLSX.writeFile(workbook, `RD_Requirements_${Date.now()}.xlsx`);
-    
-    toast.success("Project created and exported to Excel!");
-    form.reset();
-    setOpen(false);
+  const onSubmit = async (data: FormData) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error("Please login to create requirements");
+        return;
+      }
+
+      // Insert into database
+      const { error } = await supabase
+        .from('requirements')
+        .insert([{
+          user_id: user.id,
+          title: data.title,
+          description: data.description,
+          stage: data.stage,
+          priority: data.priority,
+          assignee: data.assignee,
+          due_date: data.dueDate,
+        }]);
+
+      if (error) throw error;
+
+      // Fetch all requirements for Excel export
+      const { data: allRequirements, error: fetchError } = await supabase
+        .from('requirements')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (fetchError) throw fetchError;
+
+      // Export to Excel
+      if (allRequirements && allRequirements.length > 0) {
+        const worksheet = XLSX.utils.json_to_sheet(allRequirements);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "R&D Requirements");
+        XLSX.writeFile(workbook, `RD_Requirements_${Date.now()}.xlsx`);
+      }
+
+      toast.success("Requirement created and exported to Excel!");
+      form.reset();
+      setOpen(false);
+      onSuccess?.();
+    } catch (error: any) {
+      console.error('Error creating requirement:', error);
+      toast.error(error.message || "Failed to create requirement");
+    }
   };
 
   return (
