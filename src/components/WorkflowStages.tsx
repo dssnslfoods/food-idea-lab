@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Lightbulb, FlaskConical, ClipboardCheck, Package, Rocket, Flag, ArrowRight } from "lucide-react";
+import { Lightbulb, FlaskConical, ClipboardCheck, Package, Flag, ArrowRight } from "lucide-react";
 
 interface Requirement {
   id: string;
@@ -18,7 +18,6 @@ const stageConfig = [
   { name: "Screen Test", icon: FlaskConical },
   { name: "Testing Validation", icon: ClipboardCheck },
   { name: "First Batch", icon: Package },
-  { name: "Post Launch", icon: Rocket },
   { name: "Project Close", icon: Flag },
 ];
 
