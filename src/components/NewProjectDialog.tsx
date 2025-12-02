@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import * as XLSX from "xlsx";
 import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { MemberAutocomplete } from "./MemberAutocomplete";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required").max(100),
@@ -26,6 +27,7 @@ type FormData = z.infer<typeof formSchema>;
 
 export const NewProjectDialog = ({ onSuccess }: { onSuccess?: () => void }) => {
   const [open, setOpen] = useState(false);
+  const [isValidMember, setIsValidMember] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -39,7 +41,17 @@ export const NewProjectDialog = ({ onSuccess }: { onSuccess?: () => void }) => {
     },
   });
 
+  const handleValidMember = useCallback((isValid: boolean) => {
+    setIsValidMember(isValid);
+  }, []);
+
   const onSubmit = async (data: FormData) => {
+    // Validate that assignee is a registered member
+    if (!isValidMember) {
+      toast.error("Only registered team members can create projects. Please select a valid member name.");
+      return;
+    }
+
     try {
       // Insert into database (no user_id required) and get the new ID
       const { data: newProject, error } = await supabase
@@ -85,6 +97,7 @@ export const NewProjectDialog = ({ onSuccess }: { onSuccess?: () => void }) => {
 
       toast.success("Project created and exported to Excel!");
       form.reset();
+      setIsValidMember(false);
       setOpen(false);
       onSuccess?.();
     } catch (error: any) {
@@ -193,10 +206,18 @@ export const NewProjectDialog = ({ onSuccess }: { onSuccess?: () => void }) => {
               name="assignee"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Assignee</FormLabel>
+                  <FormLabel>Assignee (Team Member)</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter assignee name" {...field} />
+                    <MemberAutocomplete
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Type to search members..."
+                      onValidMember={handleValidMember}
+                    />
                   </FormControl>
+                  {!isValidMember && field.value && (
+                    <p className="text-sm text-destructive">Please select a registered team member</p>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
@@ -220,7 +241,9 @@ export const NewProjectDialog = ({ onSuccess }: { onSuccess?: () => void }) => {
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit">Submit & Export</Button>
+              <Button type="submit" disabled={!isValidMember && form.watch('assignee').length > 0}>
+                Submit & Export
+              </Button>
             </div>
           </form>
         </Form>

@@ -64,7 +64,7 @@ const Index = () => {
             selectedStage={selectedStage}
             onStageSelect={setSelectedStage}
           />
-          <StatsOverview requirements={requirements} />
+          <StatsOverview requirements={requirements} onMembersChange={fetchRequirements} />
         </div>
         
         <WorkflowStages 
