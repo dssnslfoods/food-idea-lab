@@ -67,17 +67,17 @@ export const NewProjectDialog = ({ onSuccess }: { onSuccess?: () => void }) => {
       if (allRequirements && allRequirements.length > 0) {
         const worksheet = XLSX.utils.json_to_sheet(allRequirements);
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "R&D Requirements");
-        XLSX.writeFile(workbook, `RD_Requirements_${Date.now()}.xlsx`);
+        XLSX.utils.book_append_sheet(workbook, worksheet, "R&D Projects");
+        XLSX.writeFile(workbook, `RD_Projects_${Date.now()}.xlsx`);
       }
 
-      toast.success("Requirement created and exported to Excel!");
+      toast.success("Project created and exported to Excel!");
       form.reset();
       setOpen(false);
       onSuccess?.();
     } catch (error: any) {
-      console.error('Error creating requirement:', error);
-      toast.error(error.message || "Failed to create requirement");
+      console.error('Error creating project:', error);
+      toast.error(error.message || "Failed to create project");
     }
   };
 
@@ -86,12 +86,12 @@ export const NewProjectDialog = ({ onSuccess }: { onSuccess?: () => void }) => {
       <DialogTrigger asChild>
         <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
           <Plus className="mr-2 h-4 w-4" />
-          New Requirement
+          New Project
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create New R&D Requirement</DialogTitle>
+          <DialogTitle>Create New R&D Project</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -102,7 +102,7 @@ export const NewProjectDialog = ({ onSuccess }: { onSuccess?: () => void }) => {
                 <FormItem>
                   <FormLabel>Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter requirement title" {...field} />
+                    <Input placeholder="Enter project title" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -117,7 +117,7 @@ export const NewProjectDialog = ({ onSuccess }: { onSuccess?: () => void }) => {
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="Enter requirement description" 
+                      placeholder="Enter project description" 
                       className="min-h-[100px]"
                       {...field} 
                     />
@@ -140,10 +140,11 @@ export const NewProjectDialog = ({ onSuccess }: { onSuccess?: () => void }) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Design">Design</SelectItem>
-                      <SelectItem value="Development">Development</SelectItem>
-                      <SelectItem value="Testing">Testing</SelectItem>
-                      <SelectItem value="Production">Production</SelectItem>
+                      <SelectItem value="Product Concept">Product Concept</SelectItem>
+                      <SelectItem value="Screen Test">Screen Test</SelectItem>
+                      <SelectItem value="Testing Validation">Testing Validation</SelectItem>
+                      <SelectItem value="First Batch">First Batch</SelectItem>
+                      <SelectItem value="Post Launch">Post Launch</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

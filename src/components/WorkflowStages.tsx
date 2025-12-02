@@ -31,7 +31,7 @@ export const WorkflowStages = ({ requirements }: WorkflowStagesProps) => {
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Gate Status</h2>
         <Badge variant="outline" className="text-sm">
-          {totalActive} Active Requirements
+          {totalActive} Active Projects
         </Badge>
       </div>
       
@@ -53,7 +53,7 @@ export const WorkflowStages = ({ requirements }: WorkflowStagesProps) => {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-primary">{stage.count}</div>
-              <p className="text-sm text-muted-foreground">requirements</p>
+              <p className="text-sm text-muted-foreground">projects</p>
             </CardContent>
             
             {index < stageCounts.length - 1 && (

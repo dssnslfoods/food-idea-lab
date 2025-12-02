@@ -17,11 +17,11 @@ export const StatsOverview = ({ requirements }: StatsOverviewProps) => {
   const totalRequirements = requirements.length;
   const uniqueAssignees = new Set(requirements.map(r => r.assignee)).size;
   const highPriority = requirements.filter(r => r.priority === "high").length;
-  const inProduction = requirements.filter(r => r.stage === "Production").length;
+  const inProduction = requirements.filter(r => r.stage === "Post Launch").length;
 
   const stats = [
     {
-      title: "Total Requirements",
+      title: "Total Projects",
       value: totalRequirements.toString(),
       subtitle: "all stages",
       icon: FileText,
@@ -42,7 +42,7 @@ export const StatsOverview = ({ requirements }: StatsOverviewProps) => {
       color: "text-destructive",
     },
     {
-      title: "In Production",
+      title: "Post Launch",
       value: inProduction.toString(),
       subtitle: "completed",
       icon: CheckCircle2,
