@@ -41,8 +41,8 @@ export const NewProjectDialog = ({ onSuccess }: { onSuccess?: () => void }) => {
 
   const onSubmit = async (data: FormData) => {
     try {
-      // Insert into database (no user_id required)
-      const { error } = await supabase
+      // Insert into database (no user_id required) and get the new ID
+      const { data: newProject, error } = await supabase
         .from('requirements')
         .insert([{
           title: data.title,
@@ -51,9 +51,21 @@ export const NewProjectDialog = ({ onSuccess }: { onSuccess?: () => void }) => {
           priority: data.priority,
           assignee: data.assignee,
           due_date: data.dueDate,
-        }]);
+        }])
+        .select('id')
+        .single();
 
       if (error) throw error;
+
+      // Record initial stage in history
+      if (newProject) {
+        await supabase
+          .from('project_stage_history')
+          .insert([{
+            requirement_id: newProject.id,
+            stage: data.stage,
+          }]);
+      }
 
       // Fetch all requirements for Excel export
       const { data: allRequirements, error: fetchError } = await supabase

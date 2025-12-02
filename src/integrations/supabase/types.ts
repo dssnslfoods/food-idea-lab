@@ -14,6 +14,35 @@ export type Database = {
   }
   public: {
     Tables: {
+      project_stage_history: {
+        Row: {
+          changed_at: string
+          id: string
+          requirement_id: string
+          stage: string
+        }
+        Insert: {
+          changed_at?: string
+          id?: string
+          requirement_id: string
+          stage: string
+        }
+        Update: {
+          changed_at?: string
+          id?: string
+          requirement_id?: string
+          stage?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_stage_history_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       requirement_comments: {
         Row: {
           author_name: string

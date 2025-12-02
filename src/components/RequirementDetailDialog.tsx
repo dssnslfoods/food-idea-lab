@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Calendar, MessageSquare, Send } from "lucide-react";
+import { User, Calendar, MessageSquare, Send, ArrowRight, History } from "lucide-react";
 import { format } from "date-fns";
 
 const updateSchema = z.object({
@@ -33,6 +33,12 @@ interface Comment {
   author_name: string;
   content: string;
   created_at: string;
+}
+
+interface StageHistory {
+  id: string;
+  stage: string;
+  changed_at: string;
 }
 
 interface Requirement {
@@ -61,6 +67,8 @@ export const RequirementDetailDialog = ({
   const [isEditing, setIsEditing] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
+  const [stageHistory, setStageHistory] = useState<StageHistory[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
   const form = useForm<UpdateData>({
     resolver: zodResolver(updateSchema),
@@ -102,14 +110,35 @@ export const RequirementDetailDialog = ({
     }
   };
 
+  const fetchStageHistory = async () => {
+    setIsLoadingHistory(true);
+    try {
+      const { data, error } = await supabase
+        .from('project_stage_history')
+        .select('*')
+        .eq('requirement_id', requirement.id)
+        .order('changed_at', { ascending: true });
+
+      if (error) throw error;
+      setStageHistory(data || []);
+    } catch (error: any) {
+      console.error('Error fetching stage history:', error);
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
+
   useEffect(() => {
     if (open) {
       fetchComments();
+      fetchStageHistory();
     }
   }, [open, requirement.id]);
 
   const onSubmit = async (data: UpdateData) => {
     try {
+      const stageChanged = data.stage !== requirement.stage;
+
       const { error } = await supabase
         .from('requirements')
         .update({
@@ -120,9 +149,28 @@ export const RequirementDetailDialog = ({
 
       if (error) throw error;
 
+      // Record stage change in history if stage was changed
+      if (stageChanged) {
+        const { error: historyError } = await supabase
+          .from('project_stage_history')
+          .insert([{
+            requirement_id: requirement.id,
+            stage: data.stage,
+          }]);
+
+        if (historyError) {
+          console.error('Error recording stage history:', historyError);
+        }
+      }
+
       toast.success("Project updated successfully!");
       setIsEditing(false);
       onSuccess?.();
+      
+      // Refresh stage history
+      if (stageChanged) {
+        fetchStageHistory();
+      }
     } catch (error: any) {
       console.error('Error updating project:', error);
       toast.error(error.message || "Failed to update project");
@@ -169,6 +217,36 @@ export const RequirementDetailDialog = ({
     onOpenChange(newOpen);
   };
 
+  // Render stage progression
+  const renderStageProgression = () => {
+    if (isLoadingHistory) {
+      return <span className="text-muted-foreground text-sm">Loading history...</span>;
+    }
+
+    if (stageHistory.length === 0) {
+      return (
+        <span className="text-muted-foreground text-sm italic">
+          No stage changes recorded yet
+        </span>
+      );
+    }
+
+    return (
+      <div className="flex flex-wrap items-center gap-2">
+        {stageHistory.map((history, index) => (
+          <div key={history.id} className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-xs">
+              {history.stage}
+            </Badge>
+            {index < stageHistory.length - 1 && (
+              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -190,6 +268,15 @@ export const RequirementDetailDialog = ({
               <Calendar className="h-4 w-4" />
               <span>{requirement.due_date}</span>
             </div>
+          </div>
+
+          {/* Stage History */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <History className="h-4 w-4 text-muted-foreground" />
+              <h4 className="text-sm font-medium text-muted-foreground">Stage Progression</h4>
+            </div>
+            {renderStageProgression()}
           </div>
 
           {isEditing ? (
@@ -249,7 +336,7 @@ export const RequirementDetailDialog = ({
           ) : (
             <div className="space-y-4">
               <div>
-                <h4 className="text-sm font-medium text-muted-foreground mb-1">Stage</h4>
+                <h4 className="text-sm font-medium text-muted-foreground mb-1">Current Stage</h4>
                 <Badge variant="outline" className="text-base">
                   {requirement.stage}
                 </Badge>
