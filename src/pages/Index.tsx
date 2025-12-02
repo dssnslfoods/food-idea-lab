@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Hero } from "@/components/Hero";
 import { StatsOverview } from "@/components/StatsOverview";
+import { StatusPieChart } from "@/components/StatusPieChart";
 import { WorkflowStages } from "@/components/WorkflowStages";
 import { RequirementCard } from "@/components/RequirementCard";
 import { NewProjectDialog } from "@/components/NewProjectDialog";
@@ -57,7 +58,14 @@ const Index = () => {
       <Hero />
       
       <main className="container mx-auto max-w-7xl space-y-12 px-6 py-8">
-        <StatsOverview requirements={requirements} />
+        <div className="grid gap-6 md:grid-cols-2">
+          <StatusPieChart 
+            requirements={requirements}
+            selectedStage={selectedStage}
+            onStageSelect={setSelectedStage}
+          />
+          <StatsOverview requirements={requirements} />
+        </div>
         
         <WorkflowStages 
           requirements={requirements} 
