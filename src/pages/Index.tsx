@@ -56,9 +56,9 @@ const Index = () => {
       <Hero />
       
       <main className="container mx-auto max-w-7xl space-y-12 px-6 py-8">
-        <StatsOverview />
+        <StatsOverview requirements={requirements} />
         
-        <WorkflowStages />
+        <WorkflowStages requirements={requirements} />
         
         <div className="space-y-6">
           <div className="flex items-center justify-between">
