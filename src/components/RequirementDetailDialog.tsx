@@ -338,10 +338,48 @@ export const RequirementDetailDialog = ({
           ) : (
             <div className="space-y-4">
               <div>
-                <h4 className="text-sm font-medium text-muted-foreground mb-1">Current Stage</h4>
-                <Badge variant="outline" className="text-base">
-                  {requirement.stage}
-                </Badge>
+                <h4 className="text-sm font-medium text-muted-foreground mb-2">Current Stage</h4>
+                <Select 
+                  value={requirement.stage} 
+                  onValueChange={async (newStage) => {
+                    if (newStage !== requirement.stage) {
+                      try {
+                        const { error } = await supabase
+                          .from('requirements')
+                          .update({ stage: newStage })
+                          .eq('id', requirement.id);
+
+                        if (error) throw error;
+
+                        // Record stage change in history
+                        await supabase
+                          .from('project_stage_history')
+                          .insert([{
+                            requirement_id: requirement.id,
+                            stage: newStage,
+                          }]);
+
+                        toast.success(`Stage changed to ${newStage}`);
+                        fetchStageHistory();
+                        onSuccess?.();
+                      } catch (error: any) {
+                        console.error('Error updating stage:', error);
+                        toast.error(error.message || "Failed to update stage");
+                      }
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Product Concept">Product Concept</SelectItem>
+                    <SelectItem value="Screen Test">Screen Test</SelectItem>
+                    <SelectItem value="Testing Validation">Testing Validation</SelectItem>
+                    <SelectItem value="First Batch">First Batch</SelectItem>
+                    <SelectItem value="Post Launch">Post Launch</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               
               <div>
@@ -351,7 +389,7 @@ export const RequirementDetailDialog = ({
 
               <div className="flex gap-4 justify-end">
                 <Button onClick={() => setIsEditing(true)}>
-                  Edit Details
+                  Edit Description
                 </Button>
               </div>
             </div>
