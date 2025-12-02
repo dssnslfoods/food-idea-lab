@@ -13,8 +13,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      {/* เพิ่ม basename ตรงนี้ครับ เพื่อบอก Router ว่าเราอยู่ในโฟลเดอร์นี้ */}
-      <BrowserRouter basename="/food-idea-lab">
+      <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
