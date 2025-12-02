@@ -33,6 +33,7 @@ interface Comment {
   author_name: string;
   content: string;
   created_at: string;
+  stage: string | null;
 }
 
 interface StageHistory {
@@ -185,6 +186,7 @@ export const RequirementDetailDialog = ({
           requirement_id: requirement.id,
           author_name: data.author_name,
           content: data.content,
+          stage: requirement.stage,
         }]);
 
       if (error) throw error;
@@ -374,7 +376,7 @@ export const RequirementDetailDialog = ({
               ) : (
                 comments.map((comment) => (
                   <div key={comment.id} className="bg-muted/50 rounded-lg p-4 space-y-2">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
                       <div className="flex items-center gap-2">
                         <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
                           <span className="text-sm font-medium text-primary">
@@ -382,6 +384,11 @@ export const RequirementDetailDialog = ({
                           </span>
                         </div>
                         <span className="font-medium">{comment.author_name}</span>
+                        {comment.stage && (
+                          <Badge variant="outline" className="text-xs">
+                            {comment.stage}
+                          </Badge>
+                        )}
                       </div>
                       <span className="text-xs text-muted-foreground">
                         {format(new Date(comment.created_at), "dd MMM yyyy HH:mm")}
