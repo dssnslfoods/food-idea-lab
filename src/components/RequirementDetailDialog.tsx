@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -6,7 +6,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -14,6 +13,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Calendar, MessageSquare, Send, ArrowRight, History } from "lucide-react";
 import { format } from "date-fns";
+import { MemberAutocomplete } from "./MemberAutocomplete";
 
 const updateSchema = z.object({
   description: z.string().min(1, "Description is required").max(500),
@@ -70,6 +70,7 @@ export const RequirementDetailDialog = ({
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [stageHistory, setStageHistory] = useState<StageHistory[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [isValidCommentAuthor, setIsValidCommentAuthor] = useState(false);
 
   const form = useForm<UpdateData>({
     resolver: zodResolver(updateSchema),
@@ -86,6 +87,10 @@ export const RequirementDetailDialog = ({
       content: "",
     },
   });
+
+  const handleValidCommentAuthor = useCallback((isValid: boolean) => {
+    setIsValidCommentAuthor(isValid);
+  }, []);
 
   const priorityColors = {
     high: "bg-destructive text-destructive-foreground",
@@ -179,6 +184,12 @@ export const RequirementDetailDialog = ({
   };
 
   const onSubmitComment = async (data: CommentData) => {
+    // Validate that author is a registered member
+    if (!isValidCommentAuthor) {
+      toast.error("Only registered team members can add comments. Please select a valid member name.");
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('requirement_comments')
@@ -447,10 +458,18 @@ export const RequirementDetailDialog = ({
                   name="author_name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Your Name</FormLabel>
+                      <FormLabel>Your Name (Team Member)</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter your name" {...field} />
+                        <MemberAutocomplete
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder="Type to search members..."
+                          onValidMember={handleValidCommentAuthor}
+                        />
                       </FormControl>
+                      {!isValidCommentAuthor && field.value && (
+                        <p className="text-sm text-destructive">Please select a registered team member</p>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -475,7 +494,11 @@ export const RequirementDetailDialog = ({
                 />
 
                 <div className="flex justify-end">
-                  <Button type="submit" size="sm">
+                  <Button 
+                    type="submit" 
+                    size="sm"
+                    disabled={!isValidCommentAuthor && commentForm.watch('author_name').length > 0}
+                  >
                     <Send className="h-4 w-4 mr-2" />
                     Add Comment
                   </Button>
