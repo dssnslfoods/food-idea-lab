@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Circle, ArrowRight } from "lucide-react";
+import { Lightbulb, FlaskConical, ClipboardCheck, Package, Rocket, Flag, ArrowRight } from "lucide-react";
 
 interface Requirement {
   id: string;
@@ -11,14 +11,21 @@ interface WorkflowStagesProps {
   requirements: Requirement[];
 }
 
-const stageOrder = ["Product Concept", "Screen Test", "Testing Validation", "First Batch", "Post Launch", "Project Close"];
+const stageConfig = [
+  { name: "Product Concept", icon: Lightbulb },
+  { name: "Screen Test", icon: FlaskConical },
+  { name: "Testing Validation", icon: ClipboardCheck },
+  { name: "First Batch", icon: Package },
+  { name: "Post Launch", icon: Rocket },
+  { name: "Project Close", icon: Flag },
+];
 
 export const WorkflowStages = ({ requirements }: WorkflowStagesProps) => {
   // Count requirements by stage
-  const stageCounts = stageOrder.map(stageName => {
-    const count = requirements.filter(req => req.stage === stageName).length;
+  const stageCounts = stageConfig.map(stage => {
+    const count = requirements.filter(req => req.stage === stage.name).length;
     return {
-      name: stageName,
+      ...stage,
       count,
       status: count > 0 ? "active" : "pending"
     };
@@ -35,34 +42,33 @@ export const WorkflowStages = ({ requirements }: WorkflowStagesProps) => {
         </Badge>
       </div>
       
-      <div className="grid gap-4 md:grid-cols-6">
-        {stageCounts.map((stage, index) => (
-          <Card 
-            key={stage.name}
-            className="relative overflow-hidden transition-all hover:shadow-elevated hover:-translate-y-1"
-          >
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center justify-between text-lg">
-                <span>{stage.name}</span>
-                {stage.status === "active" ? (
-                  <CheckCircle2 className="h-5 w-5 text-accent" />
-                ) : (
-                  <Circle className="h-5 w-5 text-muted-foreground" />
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-primary">{stage.count}</div>
-              <p className="text-sm text-muted-foreground">projects</p>
-            </CardContent>
-            
-            {index < stageCounts.length - 1 && (
-              <div className="absolute -right-3 top-1/2 hidden -translate-y-1/2 md:block">
-                <ArrowRight className="h-6 w-6 text-muted-foreground/30" />
-              </div>
-            )}
-          </Card>
-        ))}
+      <div className="flex gap-4 overflow-x-auto pb-2">
+        {stageCounts.map((stage, index) => {
+          const IconComponent = stage.icon;
+          return (
+            <Card 
+              key={stage.name}
+              className="relative flex-shrink-0 min-w-[160px] transition-all hover:shadow-elevated hover:-translate-y-1"
+            >
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <IconComponent className={`h-5 w-5 ${stage.status === "active" ? "text-accent" : "text-muted-foreground"}`} />
+                  <span className="truncate">{stage.name}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-primary">{stage.count}</div>
+                <p className="text-sm text-muted-foreground">projects</p>
+              </CardContent>
+              
+              {index < stageCounts.length - 1 && (
+                <div className="absolute -right-3 top-1/2 -translate-y-1/2 z-10">
+                  <ArrowRight className="h-5 w-5 text-muted-foreground/50" />
+                </div>
+              )}
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
