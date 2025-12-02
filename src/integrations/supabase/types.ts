@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      requirement_comments: {
+        Row: {
+          author_name: string
+          content: string
+          created_at: string
+          id: string
+          requirement_id: string
+        }
+        Insert: {
+          author_name: string
+          content: string
+          created_at?: string
+          id?: string
+          requirement_id: string
+        }
+        Update: {
+          author_name?: string
+          content?: string
+          created_at?: string
+          id?: string
+          requirement_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "requirement_comments_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       requirements: {
         Row: {
           assignee: string
