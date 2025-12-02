@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -6,18 +6,34 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Clock, User, Calendar } from "lucide-react";
+import { User, Calendar, MessageSquare, Send } from "lucide-react";
+import { format } from "date-fns";
 
 const updateSchema = z.object({
   description: z.string().min(1, "Description is required").max(500),
   stage: z.string().min(1, "Stage is required"),
 });
 
+const commentSchema = z.object({
+  author_name: z.string().min(1, "Name is required").max(100),
+  content: z.string().min(1, "Comment is required").max(1000),
+});
+
 type UpdateData = z.infer<typeof updateSchema>;
+type CommentData = z.infer<typeof commentSchema>;
+
+interface Comment {
+  id: string;
+  author_name: string;
+  content: string;
+  created_at: string;
+}
 
 interface Requirement {
   id: string;
@@ -43,6 +59,8 @@ export const RequirementDetailDialog = ({
   onSuccess 
 }: RequirementDetailDialogProps) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [isLoadingComments, setIsLoadingComments] = useState(false);
 
   const form = useForm<UpdateData>({
     resolver: zodResolver(updateSchema),
@@ -52,11 +70,43 @@ export const RequirementDetailDialog = ({
     },
   });
 
+  const commentForm = useForm<CommentData>({
+    resolver: zodResolver(commentSchema),
+    defaultValues: {
+      author_name: "",
+      content: "",
+    },
+  });
+
   const priorityColors = {
     high: "bg-destructive text-destructive-foreground",
     medium: "bg-secondary text-secondary-foreground",
     low: "bg-accent text-accent-foreground",
   };
+
+  const fetchComments = async () => {
+    setIsLoadingComments(true);
+    try {
+      const { data, error } = await supabase
+        .from('requirement_comments')
+        .select('*')
+        .eq('requirement_id', requirement.id)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      setComments(data || []);
+    } catch (error: any) {
+      console.error('Error fetching comments:', error);
+    } finally {
+      setIsLoadingComments(false);
+    }
+  };
+
+  useEffect(() => {
+    if (open) {
+      fetchComments();
+    }
+  }, [open, requirement.id]);
 
   const onSubmit = async (data: UpdateData) => {
     try {
@@ -79,6 +129,27 @@ export const RequirementDetailDialog = ({
     }
   };
 
+  const onSubmitComment = async (data: CommentData) => {
+    try {
+      const { error } = await supabase
+        .from('requirement_comments')
+        .insert([{
+          requirement_id: requirement.id,
+          author_name: data.author_name,
+          content: data.content,
+        }]);
+
+      if (error) throw error;
+
+      toast.success("Comment added!");
+      commentForm.reset({ author_name: data.author_name, content: "" });
+      fetchComments();
+    } catch (error: any) {
+      console.error('Error adding comment:', error);
+      toast.error(error.message || "Failed to add comment");
+    }
+  };
+
   const handleCancel = () => {
     form.reset({
       description: requirement.description,
@@ -87,7 +158,6 @@ export const RequirementDetailDialog = ({
     setIsEditing(false);
   };
 
-  // Reset form when requirement changes
   const handleOpenChange = (newOpen: boolean) => {
     if (newOpen) {
       form.reset({
@@ -101,7 +171,7 @@ export const RequirementDetailDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl">{requirement.title}</DialogTitle>
         </DialogHeader>
@@ -189,13 +259,96 @@ export const RequirementDetailDialog = ({
                 <p className="text-foreground whitespace-pre-wrap">{requirement.description}</p>
               </div>
 
-              <div className="flex gap-4 justify-end pt-4">
+              <div className="flex gap-4 justify-end">
                 <Button onClick={() => setIsEditing(true)}>
                   Edit Details
                 </Button>
               </div>
             </div>
           )}
+
+          <Separator />
+
+          {/* Comments Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="h-5 w-5" />
+              <h3 className="text-lg font-semibold">Comments & Responses</h3>
+              <Badge variant="secondary">{comments.length}</Badge>
+            </div>
+
+            {/* Existing Comments */}
+            <div className="space-y-3 max-h-[300px] overflow-y-auto">
+              {isLoadingComments ? (
+                <p className="text-muted-foreground text-center py-4">Loading comments...</p>
+              ) : comments.length === 0 ? (
+                <p className="text-muted-foreground text-center py-4">No comments yet. Be the first to respond!</p>
+              ) : (
+                comments.map((comment) => (
+                  <div key={comment.id} className="bg-muted/50 rounded-lg p-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
+                          <span className="text-sm font-medium text-primary">
+                            {comment.author_name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <span className="font-medium">{comment.author_name}</span>
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        {format(new Date(comment.created_at), "dd MMM yyyy HH:mm")}
+                      </span>
+                    </div>
+                    <p className="text-sm whitespace-pre-wrap pl-10">{comment.content}</p>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Add Comment Form */}
+            <Form {...commentForm}>
+              <form onSubmit={commentForm.handleSubmit(onSubmitComment)} className="space-y-4 border-t pt-4">
+                <FormField
+                  control={commentForm.control}
+                  name="author_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Your Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter your name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={commentForm.control}
+                  name="content"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Comment</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Write your comment or response..." 
+                          className="min-h-[80px]"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex justify-end">
+                  <Button type="submit" size="sm">
+                    <Send className="h-4 w-4 mr-2" />
+                    Add Comment
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
