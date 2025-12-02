@@ -41,18 +41,10 @@ export const NewProjectDialog = ({ onSuccess }: { onSuccess?: () => void }) => {
 
   const onSubmit = async (data: FormData) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast.error("Please login to create requirements");
-        return;
-      }
-
-      // Insert into database
+      // Insert into database (no user_id required)
       const { error } = await supabase
         .from('requirements')
         .insert([{
-          user_id: user.id,
           title: data.title,
           description: data.description,
           stage: data.stage,
@@ -67,7 +59,6 @@ export const NewProjectDialog = ({ onSuccess }: { onSuccess?: () => void }) => {
       const { data: allRequirements, error: fetchError } = await supabase
         .from('requirements')
         .select('*')
-        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (fetchError) throw fetchError;
