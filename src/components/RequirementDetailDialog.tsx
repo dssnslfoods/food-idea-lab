@@ -120,12 +120,12 @@ export const RequirementDetailDialog = ({
 
       if (error) throw error;
 
-      toast.success("Requirement updated successfully!");
+      toast.success("Project updated successfully!");
       setIsEditing(false);
       onSuccess?.();
     } catch (error: any) {
-      console.error('Error updating requirement:', error);
-      toast.error(error.message || "Failed to update requirement");
+      console.error('Error updating project:', error);
+      toast.error(error.message || "Failed to update project");
     }
   };
 
@@ -208,10 +208,11 @@ export const RequirementDetailDialog = ({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="Design">Design</SelectItem>
-                          <SelectItem value="Development">Development</SelectItem>
-                          <SelectItem value="Testing">Testing</SelectItem>
-                          <SelectItem value="Production">Production</SelectItem>
+                          <SelectItem value="Product Concept">Product Concept</SelectItem>
+                          <SelectItem value="Screen Test">Screen Test</SelectItem>
+                          <SelectItem value="Testing Validation">Testing Validation</SelectItem>
+                          <SelectItem value="First Batch">First Batch</SelectItem>
+                          <SelectItem value="Post Launch">Post Launch</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -227,7 +228,7 @@ export const RequirementDetailDialog = ({
                       <FormLabel>Description</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Enter requirement description" 
+                          placeholder="Enter project description" 
                           className="min-h-[150px]"
                           {...field} 
                         />

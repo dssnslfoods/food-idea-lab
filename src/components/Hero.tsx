@@ -11,12 +11,12 @@ export const Hero = () => {
             NSL Foods PLC R&D Platform
           </div>
           <h1 className="mb-6 text-5xl font-bold tracking-tight text-primary-foreground md:text-6xl lg:text-7xl">
-            Design Requirements,
+            Design Projects,
             <br />
             Build Innovation
           </h1>
           <p className="mx-auto mb-8 max-w-2xl text-lg text-primary-foreground/90 md:text-xl">
-            Streamline your R&D workflow with our comprehensive requirement design platform. 
+            Streamline your R&D workflow with our comprehensive project design platform. 
             From concept to execution, manage every stage of food innovation.
           </p>
           <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
@@ -32,7 +32,7 @@ export const Hero = () => {
           
           <div className="mt-16 grid gap-6 sm:grid-cols-3">
             {[
-              "Requirement Tracking",
+              "Project Tracking",
               "Workflow Management",
               "Team Collaboration"
             ].map((feature, i) => (

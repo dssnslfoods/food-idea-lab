@@ -62,13 +62,13 @@ const Index = () => {
         
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-3xl font-bold tracking-tight">Your Requirements</h2>
+            <h2 className="text-3xl font-bold tracking-tight">Your Projects</h2>
             <NewProjectDialog onSuccess={fetchRequirements} />
           </div>
           
           {requirements.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
-              <p>No requirements yet. Create your first one!</p>
+              <p>No projects yet. Create your first one!</p>
             </div>
           ) : (
             <div className="grid gap-6">
