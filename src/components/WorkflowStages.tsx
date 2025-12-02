@@ -2,26 +2,41 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Circle, ArrowRight } from "lucide-react";
 
-const stages = [
-  { name: "Concept", count: 8, status: "active" },
-  { name: "Design", count: 5, status: "active" },
-  { name: "Development", count: 12, status: "active" },
-  { name: "Testing", count: 7, status: "active" },
-  { name: "Launch", count: 3, status: "pending" },
-];
+interface Requirement {
+  id: string;
+  stage: string;
+}
 
-export const WorkflowStages = () => {
+interface WorkflowStagesProps {
+  requirements: Requirement[];
+}
+
+const stageOrder = ["Design", "Development", "Testing", "Production"];
+
+export const WorkflowStages = ({ requirements }: WorkflowStagesProps) => {
+  // Count requirements by stage
+  const stageCounts = stageOrder.map(stageName => {
+    const count = requirements.filter(req => req.stage === stageName).length;
+    return {
+      name: stageName,
+      count,
+      status: count > 0 ? "active" : "pending"
+    };
+  });
+
+  const totalActive = requirements.length;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Workflow Stages</h2>
         <Badge variant="outline" className="text-sm">
-          35 Active Requirements
+          {totalActive} Active Requirements
         </Badge>
       </div>
       
-      <div className="grid gap-4 md:grid-cols-5">
-        {stages.map((stage, index) => (
+      <div className="grid gap-4 md:grid-cols-4">
+        {stageCounts.map((stage, index) => (
           <Card 
             key={stage.name}
             className="relative overflow-hidden transition-all hover:shadow-elevated hover:-translate-y-1"
@@ -41,7 +56,7 @@ export const WorkflowStages = () => {
               <p className="text-sm text-muted-foreground">requirements</p>
             </CardContent>
             
-            {index < stages.length - 1 && (
+            {index < stageCounts.length - 1 && (
               <div className="absolute -right-3 top-1/2 hidden -translate-y-1/2 md:block">
                 <ArrowRight className="h-6 w-6 text-muted-foreground/30" />
               </div>

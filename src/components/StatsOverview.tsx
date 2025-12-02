@@ -1,38 +1,55 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { TrendingUp, Users, Clock, CheckCircle2 } from "lucide-react";
+import { FileText, Users, Clock, CheckCircle2 } from "lucide-react";
 
-const stats = [
-  {
-    title: "Active Projects",
-    value: "24",
-    change: "+12%",
-    icon: TrendingUp,
-    color: "text-accent",
-  },
-  {
-    title: "Team Members",
-    value: "18",
-    change: "+3",
-    icon: Users,
-    color: "text-primary",
-  },
-  {
-    title: "Avg. Completion",
-    value: "14 days",
-    change: "-2 days",
-    icon: Clock,
-    color: "text-secondary",
-  },
-  {
-    title: "Completed",
-    value: "127",
-    change: "+18%",
-    icon: CheckCircle2,
-    color: "text-accent",
-  },
-];
+interface Requirement {
+  id: string;
+  stage: string;
+  assignee: string;
+  priority: string;
+}
 
-export const StatsOverview = () => {
+interface StatsOverviewProps {
+  requirements: Requirement[];
+}
+
+export const StatsOverview = ({ requirements }: StatsOverviewProps) => {
+  // Calculate real stats
+  const totalRequirements = requirements.length;
+  const uniqueAssignees = new Set(requirements.map(r => r.assignee)).size;
+  const highPriority = requirements.filter(r => r.priority === "high").length;
+  const inProduction = requirements.filter(r => r.stage === "Production").length;
+
+  const stats = [
+    {
+      title: "Total Requirements",
+      value: totalRequirements.toString(),
+      subtitle: "all stages",
+      icon: FileText,
+      color: "text-accent",
+    },
+    {
+      title: "Team Members",
+      value: uniqueAssignees.toString(),
+      subtitle: "unique assignees",
+      icon: Users,
+      color: "text-primary",
+    },
+    {
+      title: "High Priority",
+      value: highPriority.toString(),
+      subtitle: "urgent items",
+      icon: Clock,
+      color: "text-destructive",
+    },
+    {
+      title: "In Production",
+      value: inProduction.toString(),
+      subtitle: "completed",
+      icon: CheckCircle2,
+      color: "text-accent",
+    },
+  ];
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat, index) => {
@@ -51,10 +68,7 @@ export const StatsOverview = () => {
                   </p>
                   <h3 className="mt-2 text-3xl font-bold">{stat.value}</h3>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    <span className={`font-medium ${stat.color}`}>
-                      {stat.change}
-                    </span>{" "}
-                    vs last month
+                    {stat.subtitle}
                   </p>
                 </div>
                 <div className={`rounded-full bg-muted p-3 ${stat.color}`}>
