@@ -11,7 +11,7 @@ interface WorkflowStagesProps {
   requirements: Requirement[];
 }
 
-const stageOrder = ["Product Concept", "Screen Test", "Testing Validation", "First Batch", "Post Launch"];
+const stageOrder = ["Product Concept", "Screen Test", "Testing Validation", "First Batch", "Post Launch", "Project Close"];
 
 export const WorkflowStages = ({ requirements }: WorkflowStagesProps) => {
   // Count requirements by stage
@@ -35,7 +35,7 @@ export const WorkflowStages = ({ requirements }: WorkflowStagesProps) => {
         </Badge>
       </div>
       
-      <div className="grid gap-4 md:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-6">
         {stageCounts.map((stage, index) => (
           <Card 
             key={stage.name}

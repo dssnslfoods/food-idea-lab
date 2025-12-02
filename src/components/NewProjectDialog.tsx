@@ -157,6 +157,7 @@ export const NewProjectDialog = ({ onSuccess }: { onSuccess?: () => void }) => {
                       <SelectItem value="Testing Validation">Testing Validation</SelectItem>
                       <SelectItem value="First Batch">First Batch</SelectItem>
                       <SelectItem value="Post Launch">Post Launch</SelectItem>
+                      <SelectItem value="Project Close">Project Close</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
