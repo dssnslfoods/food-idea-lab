@@ -11,7 +11,7 @@ interface WorkflowStagesProps {
   requirements: Requirement[];
 }
 
-const stageOrder = ["Design", "Development", "Testing", "Production"];
+const stageOrder = ["Product Concept", "Screen Test", "Testing Validation", "First Batch", "Post Launch"];
 
 export const WorkflowStages = ({ requirements }: WorkflowStagesProps) => {
   // Count requirements by stage
@@ -29,13 +29,13 @@ export const WorkflowStages = ({ requirements }: WorkflowStagesProps) => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Workflow Stages</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Gate Status</h2>
         <Badge variant="outline" className="text-sm">
           {totalActive} Active Requirements
         </Badge>
       </div>
       
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-5">
         {stageCounts.map((stage, index) => (
           <Card 
             key={stage.name}
