@@ -13,7 +13,8 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      {/* ผมเติม basename ให้แล้วครับ */}
+      <BrowserRouter basename="/food-idea-lab">
         <Routes>
           <Route path="/" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
