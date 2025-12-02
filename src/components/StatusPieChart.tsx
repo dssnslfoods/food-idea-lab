@@ -17,11 +17,10 @@ const stageColors: Record<string, string> = {
   "Screen Test": "#f97316",     // orange
   "Testing Validation": "#8b5cf6", // purple
   "First Batch": "#3b82f6",     // blue
-  "Post Launch": "#22c55e",     // green
   "Project Close": "#6b7280",   // gray
 };
 
-const stageOrder = ["Product Concept", "Screen Test", "Testing Validation", "First Batch", "Post Launch", "Project Close"];
+const stageOrder = ["Product Concept", "Screen Test", "Testing Validation", "First Batch", "Project Close"];
 
 export const StatusPieChart = ({ requirements, onStageSelect, selectedStage }: StatusPieChartProps) => {
   const data = stageOrder.map(stage => ({
