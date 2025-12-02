@@ -127,12 +127,14 @@ const Index = () => {
               {requirements.map((req, index) => (
                 <div key={req.id} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
                   <RequirementCard 
+                    id={req.id}
                     title={req.title}
                     description={req.description}
                     stage={req.stage}
                     priority={req.priority}
                     assignee={req.assignee}
                     dueDate={req.due_date}
+                    onUpdate={() => fetchRequirements(user.id)}
                   />
                 </div>
               ))}
