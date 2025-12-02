@@ -50,6 +50,7 @@ export type Database = {
           created_at: string
           id: string
           requirement_id: string
+          stage: string | null
         }
         Insert: {
           author_name: string
@@ -57,6 +58,7 @@ export type Database = {
           created_at?: string
           id?: string
           requirement_id: string
+          stage?: string | null
         }
         Update: {
           author_name?: string
@@ -64,6 +66,7 @@ export type Database = {
           created_at?: string
           id?: string
           requirement_id?: string
+          stage?: string | null
         }
         Relationships: [
           {
