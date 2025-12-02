@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { FileText, Users, Clock, CheckCircle2 } from "lucide-react";
+import { FileText, Users, Clock } from "lucide-react";
 
 interface Requirement {
   id: string;
@@ -17,7 +17,6 @@ export const StatsOverview = ({ requirements }: StatsOverviewProps) => {
   const totalRequirements = requirements.length;
   const uniqueAssignees = new Set(requirements.map(r => r.assignee)).size;
   const highPriority = requirements.filter(r => r.priority === "high").length;
-  const inProduction = requirements.filter(r => r.stage === "Post Launch").length;
 
   const stats = [
     {
@@ -41,17 +40,10 @@ export const StatsOverview = ({ requirements }: StatsOverviewProps) => {
       icon: Clock,
       color: "text-destructive",
     },
-    {
-      title: "Post Launch",
-      value: inProduction.toString(),
-      subtitle: "completed",
-      icon: CheckCircle2,
-      color: "text-accent",
-    },
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 md:grid-cols-3">
       {stats.map((stat, index) => {
         const Icon = stat.icon;
         return (
