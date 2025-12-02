@@ -5,9 +5,6 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  // ผมเติมบรรทัดนี้กลับมาให้แล้วครับ
-  base: "/food-idea-lab/",
-
   server: {
     host: "::",
     port: 8080,
